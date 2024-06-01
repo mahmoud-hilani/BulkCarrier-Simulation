@@ -1,41 +1,50 @@
-import { GLTFLoader } from 'three/examples/jsm/Addons.js';
-import { calcdegre  } from './MathCalc.js';
-import { random  } from './MathCalc.js';
-import { calcRadean  } from './MathCalc.js';
-class CargoShip{
-    constructor(scene,path){
-        const loader = new GLTFLoader();
-        loader.load(path,(gltf) => {
-            gltf.scene.position.set(0,6,0);
-            gltf.scene.scale.set(8,8,8);
-            scene.add(gltf.scene);
-            this.cornerX = 0;
-            this.speed = 1;
-            this.ship = gltf.scene;
-            this.vibrateRate = random(1,5) * 0.0001;
-            this.rotateRate = 0.017453;
-            this.vibCorner = 1;
-        });
-    }
-    update (){
-        if( this.ship ){
-            this.ship.rotation.x += 1;
-            this.ship.translateX(this.speed.speedOfShip);
-        }
-    }
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import * as THREE from "three";
+import * as CANNON from "cannon-es";
+import Buoyancy from "../physics/Buoyancy"; // Import the Buoyancy class
 
-    pRoatate(){
-        this.ship.rotation.x += 0.01832; 
-        console.log('ss');
-    }
-    
-    go(){
-        this.ship.position.x += this.speed * Math.sin(this.cornerX); 
-        this.ship.position.z += this.speed * Math.cos(this.cornerX); 
-        console.log('a');
-    }
+class CargoShip {
+  constructor(scene, path, world, mass) {
+    const loader = new GLTFLoader();
+    loader.load(path, (gltf) => {
+      this.ship = gltf.scene;
+      scene.add(this.ship);
 
+      // Physics Setup
+      const shipBoundingBox = new THREE.Box3().setFromObject(this.ship);
+      const shipSize = shipBoundingBox.getSize(new THREE.Vector3());
+      const shipShape = new CANNON.Box(
+        new CANNON.Vec3(shipSize.x / 2, shipSize.y / 2, shipSize.z / 2)
+      );
+
+      this.shipBody = new CANNON.Body({
+        mass: mass,
+        shape: shipShape,
+        position: new CANNON.Vec3(0, 5, 0), // Adjust to ensure the ship floats
+      });
+
+      world.addBody(this.shipBody);
+      this.world = world;
+
+      // Initialize Buoyancy
+      this.buoyancy = new Buoyancy(1/20);
+    });
+  }
+
+  get getPosition() {
+    return this.ship.position;
+  }
+
+  updatePosition() {
+    if (this.ship) {
+      // Apply buoyancy force
+      this.buoyancy.applyBuoyancyForce(this.shipBody);
+
+      // Sync Three.js mesh with Cannon.js body
+      this.ship.position.copy(this.shipBody.position);
+      this.ship.quaternion.copy(this.shipBody.quaternion);
+    }
+  }
 }
 
-export {CargoShip}; 
-
+export { CargoShip };

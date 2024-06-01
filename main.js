@@ -1,221 +1,158 @@
 // Import necessary modules
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { Water } from 'three/examples/jsm/objects/Water.js';
-import { Sky } from 'three/examples/jsm/objects/Sky.js';
-import './style.css';
+import * as THREE from "three";
+import { MSky } from "./src/Components/Sky.js";
+import "./style.css";
 // ======================================
-import { CargoShip } from './src/Components/CargoShip.js';
-import { Island } from './src/Components/Island.js';
+import { CargoShip } from "./src/Components/CargoShip.js";
+import { Island } from "./src/Components/Island.js";
+import { Control } from "./src/Components/control.js";
+import * as CANNON from "cannon-es";
+import { Sea } from "./src/Components/Sea.js";
+
 // ======================================
 // Your Three.js setup and initialization code here
 
-let camera, scene, renderer;
-let controls, water, sun;
+export let camera, renderer;
+export let controls, water, sun;
 // ======================
 // my cmp
-let cargoShip ;
-let island ;
-let island2 ;
-let island3 ;
-let island4 ;
+
+export const scene = new THREE.Scene();
+const world = new CANNON.World(); // Create a physics world
+world.broadphase = new CANNON.SAPBroadphase(world);
+world.allowSleep = true;
+world.gravity.set(0, -9.82, 0);// Set gravity (adjust as needed)
 
 
+const color = 0xFFFFFF; // white light
+const intensity = 4; // full intensity
+export const light = new THREE.AmbientLight(color, intensity);
+light.position.set(10, 10, 10); // position the light
+scene.add(light);
 
+// Scene
+export const cargoShip = new CargoShip(
+  scene,
+  "./src/Models/cargoship/scene.gltf",
+  world,
+  10000000
+);
 
-
-init();
-animate();
-
-function init() {
-    // Renderer
-    renderer = new THREE.WebGLRenderer();
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.5;
-    document.body.appendChild(renderer.domElement);
-
-    // Scene
-    scene = new THREE.Scene();
-    cargoShip = new CargoShip(scene,'./src/Models/c2/scene.gltf');
-    island = new Island(scene,'./src/Models/island/scene.gltf',{x:2400,y:-1,z:2000});
-    island2 = new Island(scene,'./src/Models/island/scene.gltf',{x:-2400,y:-1,z:-1000});
-    island3 = new Island(scene,'./src/Models/island/scene.gltf',{x:400,y:-1,z:1000});
-    island4 = new Island(scene,'./src/Models/island/scene.gltf',{x:400,y:3,z:-1000});
-    
-    // Camera
-    camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight,10,20000);
-    camera.position.set(1000, 30, 100);
-    
-
-    // constrol the camera
-    // camera.position.set(100, 100, 10000); // Change to desired position
-    // camera.fov = 55; // Field of view
-    // camera.aspect = window.innerWidth / window.innerHeight; // Aspect ratio
-    // camera.near = 10; // Near clipping plane
-    // camera.far = 20000; // Far clipping plane
-    // camera.updateProjectionMatrix(); // Update the camera's projection matrix
-
-
-    // Sun
-    sun = new THREE.Vector3();
-
-    // Water
-    const waterGeometry = new THREE.PlaneGeometry(10000, 10000);
-    water = new Water(
-        waterGeometry,
-        {
-            textureWidth: 512,
-            textureHeight: 512,
-            waterNormals: new THREE.TextureLoader().load('./src/textures/waternormals.jpg', function (texture) {
-                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            }),
-            sunDirection: new THREE.Vector3(),
-            sunColor: 0xff0000,
-            waterColor: 0x4169e1,
-            distortionScale: 3.7,
-            fog: scene.fog !== undefined
-        }
-    );
-    water.rotation.x = - Math.PI / 2;
-    //color control
-    water.material.uniforms['distortionScale'].value = 10.7; // 3.7
-    water.material.uniforms['waterColor'].value.set(0x4169e1);//0x4169e1
-    // =========================
-    //dont touch
-    /*
-        water.material.uniforms['waterNormals'].value = new THREE.TextureLoader().load('./path/to/your/texture.jpg', function (texture) {
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-        });
-    */ 
-    // ==========================
-    scene.add(water);
-
-    // Skybox
-    const sky = new Sky();
-    sky.scale.setScalar(10000);
-    scene.add(sky);
-
-    const skyUniforms = sky.material.uniforms;
-    skyUniforms['turbidity'].value = 10;
-    skyUniforms['rayleigh'].value = 2;
-    skyUniforms['mieCoefficient'].value = 0.005;
-    skyUniforms['mieDirectionalG'].value = 0.8;
-
-    // const parameters = {
-    //     elevation: 2,
-    //     azimuth: 180
-    // };
-    // sun controller
-    const parameters = {
-        elevation: 2, // Change to desired elevation
-        azimuth: 180 // Change to desired azimuth
-    };
-
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    const sceneEnv = new THREE.Scene();
-    let renderTarget;
-
-    function updateSun() {
-        // const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);//default
-        const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);
-        const theta = THREE.MathUtils.degToRad(parameters.azimuth);
-
-        sun.setFromSphericalCoords(1, phi, theta);
-
-        sky.material.uniforms['sunPosition'].value.copy(sun);
-        water.material.uniforms['sunDirection'].value.copy(sun).normalize();
-
-        if (renderTarget !== undefined) renderTarget.dispose();
-        sceneEnv.add(sky);
-        renderTarget = pmremGenerator.fromScene(sceneEnv);
-        scene.add(sky);
-        scene.environment = renderTarget.texture;
-    }
-    
-    
-    updateSun();
-
-    // Orbit Controls
-    controls = new OrbitControls(camera, renderer.domElement);
-    controls.maxPolarAngle = Math.PI * 0.495;
-    controls.target.set(0, 10, 0);
-    controls.minDistance = 40.0;
-    controls.maxDistance = 200.0;
-    controls.update();
-
-    // Window resize handling
-    window.addEventListener('resize', onWindowResize);
-}
-
-
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-
-function animate() {
-    requestAnimationFrame(animate);
-    if(cargoShip.ship){
-        // camera.lookAt(cargoShip.ship.position);
-        
-    }
-    render();    
-}
-
-function render() {
-    water.material.uniforms['time'].value += 1.0 / 60.0;
-    renderer.render(scene, camera);
-}
-window.addEventListener('keydown',function(e){
-    if(e.key == 'ArrowUp'){
-        cargoShip.ship.go();
-        console.log('ppppppp')
-    }
-    else if(e.key=='ArrowLeft'){
-        if(cargoShip.ship){
-            cargoShip.ship.pRoatate();
-        }
-    }
-    else if(e.key=='ArrowRight'){
-        if(cargoShip.ship){
-
-        }
-    }
+const island = new Island(scene, "./src/Models/island/scene.gltf", {
+  x: 2400,
+  y: -1,
+  z: 2000,
+});
+const island2 = new Island(scene, "./src/Models/island/scene.gltf", {
+  x: -2400,
+  y: -1,
+  z: -1000,
+});
+const island3 = new Island(scene, "./src/Models/island/scene.gltf", {
+  x: 400,
+  y: -1,
+  z: 1000,
+});
+const island4 = new Island(scene, "./src/Models/island/scene.gltf", {
+  x: 400,
+  y: 3,
+  z: -1000,
 });
 
-// ====================================
-// camera function 
-let cameraSpeed = 1;  
+// Renderer
+renderer = new THREE.WebGLRenderer();
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.5;
+document.body.appendChild(renderer.domElement);
 
-function cameraForWord(){
-    camera.position.z-=1;
+// Camera
+camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  10,
+  20000
+);
+camera.position.set(0, 10, 60);
+scene.add(camera);
+
+controls = new Control();
+
+// Canon
+
+const shipShape = new CANNON.Box(new CANNON.Vec3(50, 10, 200)); // Adjust dimensions to match your model
+
+// Sun
+sun = new THREE.Vector3();
+const sea = new Sea();
+// Skybox
+const sky = new MSky();
+
+// sun controller
+const parameters = {
+  elevation: 2, // Change to desired elevation
+  azimuth: 180, // Change to desired azimuth
+};
+
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+// const sceneEnv = new THREE.Scene();
+let renderTarget;
+
+
+
+function updateSun() {
+  // const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);//default
+  // const theta = THREE.MathUtils.degToRad(parameters.azimuth);
+
+  // sun.setFromSphericalCoords(1, phi, theta);
+
+  // sky.sky.material.uniforms["sunPosition"].value.copy(sun);
+  sea.water.material.uniforms["sunDirection"].value.copy(light).normalize();
+
+  if (renderTarget !== undefined) renderTarget.dispose();
+  // sceneEnv.add(sky);
+  // renderTarget = pmremGenerator.fromScene(sceneEnv);
+  // scene.environment = renderTarget.texture;
 }
-function cameraBackWord(){
-    camera.position.z+=1;
-}
-function cameraDown(){
-    camera.position.y-=1;
-}
-function cameraUp(){
-    camera.position.y-=1;
+updateSun();
+
+// Window resize handling
+window.addEventListener("resize", onWindowResize);
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function cameraGoRight(){
-    
-}
-function cameraGoleft(){
-
-}
-
-function cameraRightRotate(){
-    camera.rotation.y-=1;
+function animate() {
+  requestAnimationFrame(animate);
+  if (cargoShip.ship) {
+    // camera.lookAt(cargoShip.ship.position);
+  }
 }
 
-function cameraLeftRotate(){
-    camera.rotation.y-=1;
-}
+const clock = new THREE.Clock();
+var force = new CANNON.Vec3(0, 100, 0)
+const loop = () => {
+  // animate();
+  // camera.lookAt(cargoShip.ship.position);
+  const elapsedTime = clock.getElapsedTime();
+  controls.update();
+  cargoShip.updatePosition();
+  //    shipBody.position.copy(cargoShip.ship.position); // Update physics body position
+  //    shipBody.quaternion.copy(cargoShip.ship.quaternion); // Update physics body rotation
+  // cargoShip.ship.position.copy(cargoship.shipBody.position); // Update Three.js mesh position
+  // cargoShip.ship.quaternion.copy(cargoshipshipBody.quaternion); // Update Three.js mesh rotation
+  //    shipBody.applyLocalForce(engineForce, shipBody.position);
+      
+  world.step(1 / 60);
+  // console.log(cargoShip.getPosition);
+  sea.water.material.uniforms["time"].value = elapsedTime / 2;
+  renderer.render(scene, camera);
+  // renderer.render(scene, camera);
+
+  window.requestAnimationFrame(loop);
+};
+loop();

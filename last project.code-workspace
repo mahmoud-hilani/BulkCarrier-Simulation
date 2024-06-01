@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "threejs",
+			"path": "threejs"
+		}
+	],
+	"settings": {}
+}
