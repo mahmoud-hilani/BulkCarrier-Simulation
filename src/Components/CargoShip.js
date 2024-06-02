@@ -9,6 +9,10 @@ class CargoShip {
     loader.load(path, (gltf) => {
       this.ship = gltf.scene;
       scene.add(this.ship);
+      const baseMass = 100; // Define a reference mass (adjust as needed)
+      const scaleFactor = 1; // Cube root for 3D scaling
+        this.ship.scale.set(scaleFactor, scaleFactor, scaleFactor); 
+        console.log(this.ship)
 
       // Physics Setup
       const shipBoundingBox = new THREE.Box3().setFromObject(this.ship);
@@ -16,6 +20,8 @@ class CargoShip {
       const shipShape = new CANNON.Box(
         new CANNON.Vec3(shipSize.x / 2, shipSize.y / 2, shipSize.z / 2)
       );
+     
+
 
       this.shipBody = new CANNON.Body({
         mass: mass,
@@ -23,11 +29,13 @@ class CargoShip {
         position: new CANNON.Vec3(0, 5, 0), // Adjust to ensure the ship floats
       });
 
+
+
       world.addBody(this.shipBody);
       this.world = world;
 
       // Initialize Buoyancy
-      this.buoyancy = new Buoyancy(1/20);
+      this.buoyancy = new Buoyancy(1/10);
     });
   }
 
@@ -38,7 +46,7 @@ class CargoShip {
   updatePosition() {
     if (this.ship) {
       // Apply buoyancy force
-      this.buoyancy.applyBuoyancyForce(this.shipBody);
+      this.buoyancy.applyCorrectBuoyancyForce(this.shipBody);
 
       // Sync Three.js mesh with Cannon.js body
       this.ship.position.copy(this.shipBody.position);

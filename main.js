@@ -18,24 +18,24 @@ export let controls, water, sun;
 // my cmp
 
 export const scene = new THREE.Scene();
-const world = new CANNON.World(); // Create a physics world
+export const world = new CANNON.World(); // Create a physics world
 world.broadphase = new CANNON.SAPBroadphase(world);
 world.allowSleep = true;
-world.gravity.set(0, -9.82, 0);// Set gravity (adjust as needed)
+world.gravity.set(0, -9.82, 0); // Set gravity (adjust as needed)
 
-
-const color = 0xFFFFFF; // white light
+const color = 0xffffff; // white light
 const intensity = 4; // full intensity
 export const light = new THREE.AmbientLight(color, intensity);
 light.position.set(10, 10, 10); // position the light
 scene.add(light);
-
+export var mass = 60*1000*1000;
+                  //603
 // Scene
 export const cargoShip = new CargoShip(
   scene,
   "./src/Models/cargoship/scene.gltf",
   world,
-  10000000
+  mass
 );
 
 const island = new Island(scene, "./src/Models/island/scene.gltf", {
@@ -99,8 +99,6 @@ const pmremGenerator = new THREE.PMREMGenerator(renderer);
 // const sceneEnv = new THREE.Scene();
 let renderTarget;
 
-
-
 function updateSun() {
   // const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);//default
   // const theta = THREE.MathUtils.degToRad(parameters.azimuth);
@@ -134,7 +132,7 @@ function animate() {
 }
 
 const clock = new THREE.Clock();
-var force = new CANNON.Vec3(0, 100, 0)
+var force = new CANNON.Vec3(0, 100, 0);
 const loop = () => {
   // animate();
   // camera.lookAt(cargoShip.ship.position);
@@ -146,7 +144,7 @@ const loop = () => {
   // cargoShip.ship.position.copy(cargoship.shipBody.position); // Update Three.js mesh position
   // cargoShip.ship.quaternion.copy(cargoshipshipBody.quaternion); // Update Three.js mesh rotation
   //    shipBody.applyLocalForce(engineForce, shipBody.position);
-      
+
   world.step(1 / 60);
   // console.log(cargoShip.getPosition);
   sea.water.material.uniforms["time"].value = elapsedTime / 2;
