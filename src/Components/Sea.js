@@ -20,6 +20,7 @@ class Sea {
     );
 
     this.water.rotation.x = -Math.PI / 2;
+    this.water.position.set(0,-5,0);
     scene.add(this.water);
   }
 
@@ -28,6 +29,19 @@ class Sea {
     const waveAmplitude = 10; // Adjust based on your wave amplitude in the shader
     const waveFrequency = 0.2; // Adjust based on your wave frequency in the shader
     return Math.sin((x + time) * waveFrequency) * waveAmplitude;
+  }
+
+  update(light,time){
+    this.updateSunPosition(light)
+    this.updateTime(time )
+  }   
+  updateTime(time ){
+    this.water.material.uniforms["time"].value = time / 2;
+
+  }
+  updateSunPosition(light) {
+    this.water.material.uniforms["sunDirection"].value.copy(light).normalize();
+
   }
 }
 
