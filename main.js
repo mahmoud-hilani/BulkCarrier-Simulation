@@ -42,22 +42,22 @@ export var cargoShip = new CargoShip(
 
 const island = new Island(scene, "./src/Models/island/scene.gltf", {
   x: 2400,
-  y: -1,
+  y: 0,
   z: 2000,
 });
 const island2 = new Island(scene, "./src/Models/island/scene.gltf", {
   x: -2400,
-  y: -1,
+  y: 0,
   z: -1000,
 });
 const island3 = new Island(scene, "./src/Models/island/scene.gltf", {
   x: 400,
-  y: -1,
+  y: 0,
   z: 1000,
 });
 const island4 = new Island(scene, "./src/Models/island/scene.gltf", {
   x: 400,
-  y: 3,
+  y: 0,
   z: -1000,
 });
 
@@ -87,7 +87,7 @@ controls = new Control();
 
 // Sun
 sun = new THREE.Vector3();
-const sea = new Sea();
+export const sea = new Sea();
 // Skybox
 const sky = new MSky();
 
@@ -118,7 +118,7 @@ const loop = () => {
   // camera.lookAt(cargoShip.ship.position);
   const elapsedTime = clock.getElapsedTime();
   controls.update();
-  cargoShip.updatePosition();
+  cargoShip.updatePosition(elapsedTime);
   sea.update(light,elapsedTime);
 
   // sea.water.material.uniforms["time"].value = elapsedTime / 2;
