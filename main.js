@@ -7,7 +7,7 @@ import { CargoShip } from "./src/Components/CargoShip.js";
 import { Island } from "./src/Components/Island.js";
 import { Control } from "./src/Components/control.js";
 import { Sea } from "./src/Components/Sea.js";
-import GUI from 'lil-gui';
+import GUI from "lil-gui";
 
 // ======================================
 // Your Three.js setup and initialization code here
@@ -29,16 +29,16 @@ const intensity = 2; // full intensity
 export const light = new THREE.AmbientLight(color, intensity);
 light.position.set(10, 10, 10); // position the light
 scene.add(light);
-          //30
+//30
 // Scene
-var mass = 15*1000*1000;
+var mass = 15 * 1000 * 1000;
 
 export var cargoShip = new CargoShip(
+  'first',
   scene,
   "./src/Models/cargoship/scene.gltf",
   mass
 );
-
 
 const island = new Island(scene, "./src/Models/island/scene.gltf", {
   x: 2400,
@@ -101,8 +101,6 @@ const pmremGenerator = new THREE.PMREMGenerator(renderer);
 // const sceneEnv = new THREE.Scene();
 let renderTarget;
 
-
-
 window.addEventListener("resize", onWindowResize);
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -110,16 +108,21 @@ function onWindowResize() {
 
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-
+let time = Date.now();
 const clock = new THREE.Clock();
 // var force = new CANNON.Vec3(0, 100, 0);
 const loop = () => {
   // animate();
-  // camera.lookAt(cargoShip.ship.position);
+  let lastTime = Date.now();
+  let deltaTime = (lastTime - time) / 1000; // Time elapsed in seconds
+  time = lastTime;
+
+  // Movement logic (adjust for 120 FPS)
+  // console.log(cargoShip.getPosition);
   const elapsedTime = clock.getElapsedTime();
   controls.update();
-  cargoShip.updatePosition(elapsedTime);
-  sea.update(light,elapsedTime);
+  cargoShip.updatePosition(elapsedTime, deltaTime);
+  sea.update(light, elapsedTime);
 
   // sea.water.material.uniforms["time"].value = elapsedTime / 2;
   renderer.render(scene, camera);
@@ -128,7 +131,6 @@ const loop = () => {
   window.requestAnimationFrame(loop);
 };
 loop();
-
 
 function updateSun() {
   // const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);//default

@@ -2,10 +2,11 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import Buoyancy from "../physics/Buoyancy"; // Import the Buoyancy class
-import { gui, sea } from "../../main.js";
+import { camera, gui, sea } from "../../main.js";
 
 class CargoShip {
   constructor(
+    name,
     scene,
     path,
     mass,
@@ -17,54 +18,49 @@ class CargoShip {
     loader.load(path, (gltf) => {
       this.ship = gltf.scene;
       scene.add(this.ship);
-      this.mass = mass;
-      // this.mass = mass;
-
-      const folder = gui.addFolder("ship");
-      folder
-        .add(this, "mass", 1, 25 * 1000 * 1000, 1 * 1000 * 1000)
-        .onChange(() => {
-          this.buoyancy.updateMass(this.mass);
-        });
-
-      // Initialize Buoyancy
-      this.buoyancy = new Buoyancy(this.mass, shipLength, shipDraft, shipBeam);
-      // this.ship.position.set(350, 0, -1000);
-      // console.log(this.ship)
-
-      // const baseMass = 100; // Define a reference mass (adjust as needed)
-      // const scaleFactor = 1; // Cube root for 3D scaling
-      //   this.ship.scale.set(scaleFactor, scaleFactor, scaleFactor);
-      // console.log(this.ship)
-
-      // Physics Setup
-      const shipBoundingBox = new THREE.Box3().setFromObject(this.ship);
-      const shipSize = shipBoundingBox.getSize(new THREE.Vector3());
-      // console.log(shipSize)
-
-      // const shipShape = new CANNON.Box(
-      //   new CANNON.Vec3(shipSize.x / 2, shipSize.y / 2, shipSize.z / 2)
-      // );
-
-      // this.shipBody = new CANNON.Body({
-      //   mass: mass,
-      //   shape: shipShape,
-      //   position: new CANNON.Vec3(0, 5, 0), // Adjust to ensure the ship floats
-      // });
-
-      // world.addBody(this.shipBody);
-      // this.world = world;
     });
+    this.mass = mass;
+    this.v = new THREE.Vector3(0, 0, 0);
+    // this.mass = mass;
+
+    const folder = gui.addFolder(name);
+    folder.add(this, "mass", 1, 30_000_000, 1_000_000).onChange((value) => {
+      this.updateMass(value);
+      this.v = new THREE.Vector3(0, 0, 0);
+    });
+
+    // Initialize Buoyancy
+    this.buoyancy = new Buoyancy(this.mass, shipLength, shipDraft, shipBeam);
   }
 
+  updateMass(newMass) {
+    this.mass = newMass;
+    this.buoyancy.updateMass(newMass);
+    // console.log(this.mass)
+  }
   get getPosition() {
-    return this.ship.position;
+    if (this.ship) return this.ship.position;
   }
 
-  updatePosition(time) {
+  updatePosition(time, deltaTime) {
     if (this.ship) {
-      // Apply buoyancy force
-      this.buoyancy.applyCorrectBuoyancyForce(this.ship, time);
+      let B = this.buoyancy.BuoyancyForce(this.ship, time);
+      let WD = this.buoyancy.waterDrag(this.v.y);
+        console.log(`wd ${WD.y}`);
+        console.log(`B ${B.y}`);
+        console.log(`v ${this.v.y*this.v.y}`);
+
+      var s = B.add(WD);
+      var y = s.y;
+      //  this.ship.position.y += vY * deltaTime;
+      // this.ship.position.add(a)
+      // var result = vector1.clone().add(vector2).add(vector3);
+      let a = s.clone().divideScalar(this.mass);
+      // console.log(this.a.y)
+      this.v.add(a.clone().multiplyScalar(deltaTime));
+      this.ship.position.add(this.v.clone().multiplyScalar(deltaTime));
+      console.log(`s ${s.y}`);
+      console.log(this.ship.position.y);
     }
   }
 }
