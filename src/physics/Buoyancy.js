@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import GUI from "lil-gui";
-import { gui, sea } from "../../main.js";
+import {  sea } from "../../main.js";
 class Buoyancy {
   constructor(shipMass, shipLength, shipDraft, shipBeam) {
     this.waterDensity = 1025;
@@ -46,6 +46,8 @@ waterDrag(v){
       // console.log(24600000  + " maxBuoyantForce")
       const B = (maxSubmergedVolume * this.waterDensity* this.gravity) - (this.shipMass * this.gravity);
       return new THREE.Vector3( 0,B,0);
+
+      
     }
     // Adjust the ship's y position based on submerged depth
     const newYPosition = -waterLevel + wave/this.shipMass;

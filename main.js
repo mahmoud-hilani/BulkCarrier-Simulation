@@ -7,7 +7,6 @@ import { CargoShip } from "./src/Components/CargoShip.js";
 import { Island } from "./src/Components/Island.js";
 import { Control } from "./src/Components/control.js";
 import { Sea } from "./src/Components/Sea.js";
-import GUI from "lil-gui";
 
 // ======================================
 // Your Three.js setup and initialization code here
@@ -16,7 +15,6 @@ export let camera, renderer;
 export let controls, water, sun;
 // ======================
 // my cmp
-export const gui = new GUI();
 
 export const scene = new THREE.Scene();
 // export const world = new CANNON.World(); // Create a physics world
