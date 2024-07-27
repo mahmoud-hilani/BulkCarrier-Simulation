@@ -30,7 +30,7 @@ waterDrag(v){
 
 }
 
-  BuoyancyForce(shipBody, time) {
+  BuoyancyForce(shipBody, time,shipYlevel) {
     const wave = sea.getWaterLevel(
       shipBody.position.x,
       shipBody.position.z,
@@ -46,11 +46,9 @@ waterDrag(v){
       // console.log(24600000  + " maxBuoyantForce")
       const B = (maxSubmergedVolume * this.waterDensity* this.gravity) - (this.shipMass * this.gravity);
       return new THREE.Vector3( 0,B,0);
-
-      
     }
     // Adjust the ship's y position based on submerged depth
-    const newYPosition = -waterLevel + wave/this.shipMass;
+    const newYPosition = -waterLevel+shipYlevel+ wave/this.shipMass;
     shipBody.position.y = newYPosition;
    return new THREE.Vector3( 0,0,0);
   }

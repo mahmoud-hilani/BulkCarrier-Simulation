@@ -9,7 +9,7 @@ export class Control {
     this.controls.maxPolarAngle = Math.PI * 0.495;
     this.controls.enableDamping = true;
     this.controls.minDistance = 20;
-    this.controls.maxDistance = 55;
+    this.controls.maxDistance = 100;
    
   }
 

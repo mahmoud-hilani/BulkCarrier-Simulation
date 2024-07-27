@@ -1,4 +1,4 @@
-import { Water } from 'three/examples/jsm/objects/Water.js';
+  import { Water } from 'three/examples/jsm/objects/Water.js';
 import * as THREE from 'three';
 import { scene } from "../../main.js";
 
@@ -23,7 +23,7 @@ class Sea {
     );
 
     this.water.rotation.x = -Math.PI / 2;
-    this.water.position.set(0,-5,0);
+    // this.water.position.set(0,-5,0);
     scene.add(this.water);
   }
 

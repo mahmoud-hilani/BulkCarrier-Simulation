@@ -10,4 +10,4 @@ function random (min,max){
 }
 // ==================================
 // exporting
-export { calcdegre , random , calcRadean};
+export  { calcdegre , random , calcRadean};

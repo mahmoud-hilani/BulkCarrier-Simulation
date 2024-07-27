@@ -7,6 +7,7 @@ import { CargoShip } from "./src/Components/CargoShip.js";
 import { Island } from "./src/Components/Island.js";
 import { Control } from "./src/Components/control.js";
 import { Sea } from "./src/Components/Sea.js";
+import GUI from "lil-gui";
 
 // ======================================
 // Your Three.js setup and initialization code here
@@ -21,6 +22,7 @@ export const scene = new THREE.Scene();
 // world.broadphase = new CANNON.SAPBroadphase(world);
 // world.allowSleep = true;
 // world.gravity.set(0, -9.82, 0); // Set gravity (adjust as needed)
+export let gui = new GUI();
 
 const color = 0xffffff; // white light
 const intensity = 2; // full intensity
@@ -32,12 +34,26 @@ scene.add(light);
 var mass = 15 * 1000 * 1000;
 
 export var cargoShip = new CargoShip(
-  'first',
+  'Aframax',
   scene,
   "./src/Models/cargoship/scene.gltf",
-  mass
+  mass,{
+  x: -0,
+  y: 0,
+  z: 0,
+}
 );
 
+export var cargoShip2 = new CargoShip(
+  'EverGreen',
+  scene,
+  "./src/Models/cargoship/scene.gltf",
+  mass,{
+  x: 0,
+  y: 0,
+  z: -100,
+},100,6,15
+);
 const island = new Island(scene, "./src/Models/island/scene.gltf", {
   x: 2400,
   y: 0,
@@ -120,6 +136,8 @@ const loop = () => {
   const elapsedTime = clock.getElapsedTime();
   controls.update();
   cargoShip.updatePosition(elapsedTime, deltaTime);
+  cargoShip2.updatePosition(elapsedTime, deltaTime);
+
   sea.update(light, elapsedTime);
 
   // sea.water.material.uniforms["time"].value = elapsedTime / 2;
