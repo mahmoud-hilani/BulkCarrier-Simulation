@@ -44,16 +44,16 @@ export var cargoShip = new CargoShip(
 }
 );
 
-export var cargoShip2 = new CargoShip(
-  'EverGreen',
-  scene,
-  "./src/Models/cargoship/scene.gltf",
-  mass,{
-  x: 0,
-  y: 0,
-  z: -100,
-},100,6,15
-);
+// export var cargoShip2 = new CargoShip(
+//   'EverGreen',
+//   scene,
+//   "./src/Models/cargoship/scene.gltf",
+//   mass,{
+//   x: 0,
+//   y: 0,
+//   z: -100,
+// },100,6,15
+// );
 const island = new Island(scene, "./src/Models/island/scene.gltf", {
   x: 2400,
   y: 0,
@@ -136,7 +136,7 @@ const loop = () => {
   const elapsedTime = clock.getElapsedTime();
   controls.update();
   cargoShip.updatePosition(elapsedTime, deltaTime);
-  cargoShip2.updatePosition(elapsedTime, deltaTime);
+  // cargoShip2.updatePosition(elapsedTime, deltaTime);
 
   sea.update(light, elapsedTime);
 

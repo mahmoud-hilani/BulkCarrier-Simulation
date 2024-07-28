@@ -1,7 +1,5 @@
 import { GLTFLoader } from 'three/examples/jsm/Addons.js';
-import { calcdegre  } from './MathCalc.js';
 import { random  } from './MathCalc.js';
-import { calcRadean  } from './MathCalc.js';
 class Island{
     constructor(scene,path,distanc){
         const loader = new GLTFLoader();

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { radiansToDegrees,degreesToRadians } from "../Components/MathCalc";
 
 class Engine {
     constructor(power, maxRPM, efficiency,guifolder) {
@@ -15,10 +16,11 @@ class Engine {
         this.currentRPM = throttle * this.maxRPM;
     }
 
-    getThrustForce() {
+    getThrustForce(theta) { //
         // Calculate thrust based on power, RPM, and efficiency
+        // console.log("theta: " + radiansToDegrees(theta));
         const thrust = this.power * this.efficiency * (this.currentRPM / this.maxRPM);
-        return new THREE.Vector3(thrust,0,0);
+        return new THREE.Vector3(thrust,0,thrust);
     }
 }
 

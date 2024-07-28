@@ -30,7 +30,7 @@ waterDrag(v){
 
 }
 
-  BuoyancyForce(shipBody, time,shipYlevel) {
+  BuoyancyForce(shipBody, time,shipYlevel,v) {
     const wave = sea.getWaterLevel(
       shipBody.position.x,
       shipBody.position.z,
