@@ -3,7 +3,7 @@ import * as THREE from "three";
 import Buoyancy from "../physics/Buoyancy";
 import Engine from "../physics/Engine"; // I
 import Rudder from "../physics/Rudder"; // I
-
+import Drag from "../physics/Drag.js";
 import { degreesToRadians } from "../Components/MathCalc"; // Import thethCalc";
 import { gui } from "../../main.js"; //
 
@@ -12,8 +12,9 @@ class CargoShip {
     name,
     scene,
     path,
-    mass,
-    pos,
+    // enginePower,
+    engine,
+    start,
     shipLength = 200,
     shipDraft  = 12, //height
     shipBeam   = 30 
@@ -25,67 +26,77 @@ class CargoShip {
     loader.load(path, (gltf) => {
       this.ship = gltf.scene;
       this.scaling();
-      this.ship.position.set(pos.x, pos.y, pos.z);
+      this.ship.position.set();
       scene.add(this.ship);
     });
     this.shipLength = shipLength;
     this.shipDraft = shipDraft;
     this.shipBeam = shipBeam;
-    this.mass = mass;
+    this.mass =  5 * 1000 * 1000;
+    this.pos = new THREE.Vector3(0, 0, 0);
     this.v = new THREE.Vector3(0, 0, 0);
+    this.a = new THREE.Vector3(0, 0, 0);
+    this.T = new THREE.Vector3(0, 0, 0);
+this.B = new THREE.Vector3(0, 0, 0);
+this.WD = new THREE.Vector3(0, 0, 0);
+this.AD = new THREE.Vector3(0, 0, 0);
     this.angularVelocity=0
-    this.engine = new Engine(60_000_000, 73, 0.8, this.guifolder);
-    this.buoyancy = new Buoyancy(this.mass, shipLength, shipDraft, shipBeam);
-    this.rudder = new Rudder(shipLength, shipBeam, this.mass,this.guifolder);
     this.updateMass();
+
+    this.Drag = new Drag( shipLength, shipDraft, shipBeam)
+    // this.engine = new Engine(enginePower, 73, 0.8, this.guifolder);
+    this.engine=engine
+    this.buoyancy = new Buoyancy(this.mass, shipLength, shipDraft, shipBeam,this.Drag);
+    this.rudder = new Rudder(shipLength, shipBeam, this.mass,this.guifolder);
+    this.position= new THREE.Vector3(start.x, start.y, start.z);
     this.gui()
-    // Initialize Buoyancy
   }
 
   updatePosition(time, deltaTime) {
     if (this.ship) {
-      // Update ship rotation (yaw)
-      let angularAcceleration = this.rudder.updateYaw(deltaTime, this.v, this.mass);
-       // Update angular velocity
-    this.angularVelocity += angularAcceleration * deltaTime;
+       this.B.copy(this.buoyancy.BuoyancyForce(this.position, time, this.shipYlevel));
+      let sinkingDrag = this.buoyancy.waterDrag(this.v.y);
+      this.T.copy(this.engine.getThrustForce())
+          // turn) off the engine when sinking
+          this.AD.copy(this.Drag.calculateAirDrag(this.v.x))
+          this.WD.copy(this.Drag.calculateWaterDrag(this.v.x))
+      // if (!this.B.equals(new THREE.Vector3(0, 0, 0))) {
+      //   T = new THREE.Vector3(0, 0, 0);
+      // }
+      let theta = this.rudder.updateYaw(deltaTime, this.v, this.mass);
+      this.ship.rotation.y += theta
 
-    // Apply damping to angular velocity
-    const damping = 0.99; // Damping factor
-    this.angularVelocity *= damping;      
-      this.ship.rotation.y += this.angularVelocity*deltaTime;
-      console.log( this.v)
-      // this.ship.rotation.y = degreesToRadians(45)
-      
-      let B = this.buoyancy.BuoyancyForce(this.ship, time, this.shipYlevel);
-      let WD = this.buoyancy.waterDrag(this.v.y);
-      let T = this.engine.getThrustForce(angularAcceleration);
-      // console.log(Math.cos(this.ship.rotation.y) +"  "+ Math.sin(this.ship.rotation.y))
-
-      if (!B.equals(new THREE.Vector3(0, 0, 0))) {
-        T = new THREE.Vector3(0, 0, 0);
-      }
-
-      var s = B.add(WD.add(T));
-      let a = s.clone().divideScalar(this.mass);
-      this.v.add(a.clone().multiplyScalar(deltaTime));
-      this.pos=new THREE.Vector3(
+      var s = this.B.add(sinkingDrag.clone().add(this.T.clone().add(this.WD.clone().add(this.AD))));
+      this.a.copy(s.clone().divideScalar(this.mass));
+      this.v.add(this.a.clone().multiplyScalar(deltaTime));
+      this.pos.set(
         this.v.x*Math.cos(-this.ship.rotation.y)
       ,this.v.y
       ,this.v.z*Math.sin(-this.ship.rotation.y))
-      this.pos.multiplyScalar(deltaTime)
 
-      this.ship.position.add(this.pos);
-      // console.log(this.ship.rotation);
+      this.pos.multiplyScalar(deltaTime)
+      this.position.add(this.pos);
+      this.ship.position.set(this.position.x, this.position.y, this.position.z)
     }
   }
 
 
 gui(){
-  this.guifolder.add( this, 'angularVelocity' ) .listen()
-  this.guifolder.add( this.v, 'x' ).listen()
-  this.guifolder.add( this.v, 'y' ).listen()
-  this.guifolder.add( this.v, 'z' ).listen()
+  this.guifolder.add(this.engine, 'currentRPM', 0, this.engine.maxRPM, 10).onChange((value) => {})
 
+  this.guifolder.add( this.a, 'x' ).listen().name( 'acceleration' )
+  this.guifolder.add( this.v, 'x' ).listen().name( 'velocity' )
+  this.guifolder.add( this.v, 'y' ).listen().name( 'velocity Y' )
+
+ let position= this.guifolder.addFolder('position')
+  position.add( this.position, 'x' ).listen()
+  position.add( this.position, 'y' ).listen()
+  position.add( this.position, 'z' ).listen()
+ let forces= this.guifolder.addFolder('forces')
+  forces.add( this.T, 'x' ).listen().name('T')
+  forces.add( this.B, 'y' ).listen().name('B')
+  forces.add( this.WD, 'x' ).listen().name('WD')
+  forces.add( this.AD, 'x' ).listen().name('AD')
 }
   scaling() {
     // Get the original dimensions of the loaded model
@@ -110,23 +121,10 @@ gui(){
         this.buoyancy.updateMass(newMass);
         this.rudder.updateMass(newMass);
 
-        this.v.normalize 
+        this.v.set(0,0,0) 
       });
-
-    // console.log(`m ${this.mass}`)
   }
-  // get getPosition() {
-  //   if (this.ship) return this.ship.position;
-  // }
 
- 
 }
-function print() {
 
-  console.log(`B `);
-  console.log(B);
-
-  console.log(`v ${this.v.x}`);
-  console.log(this.v);
-}
 export { CargoShip };

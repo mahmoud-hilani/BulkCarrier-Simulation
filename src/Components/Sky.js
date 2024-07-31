@@ -5,7 +5,7 @@ import * as THREE from "three";
 export class MSky {
     constructor(){
         this.sky = new Sky();
-        this.sky.scale.setScalar(10000);
+        this.sky.scale.setScalar(1000000);
         this.sky.material.uniforms["sunPosition"].value.copy(light.position);
 
         this.skyUniforms = this.sky.material.uniforms;

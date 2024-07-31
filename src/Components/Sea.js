@@ -21,7 +21,7 @@ class Sea {
         distortionScale: 3.7,
       }
     );
-
+    this.water.scale.set(10,10,10)
     this.water.rotation.x = -Math.PI / 2;
     // this.water.position.set(0,-5,0);
     scene.add(this.water);

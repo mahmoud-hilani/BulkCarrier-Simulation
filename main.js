@@ -2,7 +2,7 @@
 import * as THREE from "three";
 import { MSky } from "./src/Components/Sky.js";
 import "./style.css";
-// ======================================
+import Engine from "./src/physics/Engine.js"; // I
 import { CargoShip } from "./src/Components/CargoShip.js";
 import { Island } from "./src/Components/Island.js";
 import { Control } from "./src/Components/control.js";
@@ -23,6 +23,7 @@ export const scene = new THREE.Scene();
 // world.allowSleep = true;
 // world.gravity.set(0, -9.82, 0); // Set gravity (adjust as needed)
 export let gui = new GUI();
+gui.title('ships');
 
 const color = 0xffffff; // white light
 const intensity = 2; // full intensity
@@ -31,29 +32,31 @@ light.position.set(10, 10, 10); // position the light
 scene.add(light);
 //30
 // Scene
-var mass = 15 * 1000 * 1000;
-
-export var cargoShip = new CargoShip(
+var enginePower = 60_000_000;
+  let engine = new Engine(enginePower, 73, 0.8);
+  let engine2 = new Engine(enginePower, 73, 0.8);
+    export var cargoShip = new CargoShip(
   'Aframax',
   scene,
   "./src/Models/cargoship/scene.gltf",
-  mass,{
+  engine,
+  {
   x: -0,
   y: 0,
   z: 0,
 }
 );
 
-// export var cargoShip2 = new CargoShip(
-//   'EverGreen',
-//   scene,
-//   "./src/Models/cargoship/scene.gltf",
-//   mass,{
-//   x: 0,
-//   y: 0,
-//   z: -100,
-// },100,6,15
-// );
+ var cargoShip2 = new CargoShip(
+  'EverGreen',
+  scene,
+  "./src/Models/cargoship/scene.gltf",
+  engine2,{
+  x: 0,
+  y: 0,
+  z: -200,
+},100,6,15
+);
 const island = new Island(scene, "./src/Models/island/scene.gltf", {
   x: 2400,
   y: 0,
@@ -92,14 +95,7 @@ camera = new THREE.PerspectiveCamera(
 );
 camera.position.set(0, 10, 60);
 scene.add(camera);
-
 controls = new Control();
-
-// Canon
-
-// // const shipShape = new CANNON.Box(new CANNON.Vec3(50, 10, 200)); // Adjust dimensions to match your model
-
-// Sun
 sun = new THREE.Vector3();
 export const sea = new Sea();
 // Skybox
@@ -111,10 +107,6 @@ const parameters = {
   azimuth: 180, // Change to desired azimuth
 };
 
-const pmremGenerator = new THREE.PMREMGenerator(renderer);
-// const sceneEnv = new THREE.Scene();
-let renderTarget;
-
 window.addEventListener("resize", onWindowResize);
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -124,42 +116,18 @@ function onWindowResize() {
 }
 let time = Date.now();
 const clock = new THREE.Clock();
-// var force = new CANNON.Vec3(0, 100, 0);
 const loop = () => {
-  // animate();
   let lastTime = Date.now();
   let deltaTime = (lastTime - time) / 1000; // Time elapsed in seconds
   time = lastTime;
-
-  // Movement logic (adjust for 120 FPS)
-  // console.log(cargoShip.getPosition);
   const elapsedTime = clock.getElapsedTime();
-  controls.update();
   cargoShip.updatePosition(elapsedTime, deltaTime);
-  // cargoShip2.updatePosition(elapsedTime, deltaTime);
-
+  cargoShip2.updatePosition(elapsedTime, deltaTime);
+  controls.update();
   sea.update(light, elapsedTime);
-
-  // sea.water.material.uniforms["time"].value = elapsedTime / 2;
+  sky.update(light, elapsedTime);
   renderer.render(scene, camera);
-  // renderer.render(scene, camera);
-
   window.requestAnimationFrame(loop);
 };
 loop();
 
-function updateSun() {
-  // const phi = THREE.MathUtils.degToRad(90 - parameters.elevation);//default
-  // const theta = THREE.MathUtils.degToRad(parameters.azimuth);
-
-  // sun.setFromSphericalCoords(1, phi, theta);
-
-  // sky.sky.material.uniforms["sunPosition"].value.copy(sun);
-  sea.water.material.uniforms["sunDirection"].value.copy(light).normalize();
-
-  if (renderTarget !== undefined) renderTarget.dispose();
-  // sceneEnv.add(sky);
-  // renderTarget = pmremGenerator.fromScene(sceneEnv);
-  // scene.environment = renderTarget.texture;
-}
-// updateSun();
