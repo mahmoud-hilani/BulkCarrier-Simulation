@@ -1,6 +1,6 @@
   import { Water } from 'three/examples/jsm/objects/Water.js';
 import * as THREE from 'three';
-import { scene } from "../../main.js";
+import { scene ,clock} from "../../main.js";
 
 class Sea {
   constructor() {
@@ -33,8 +33,10 @@ class Sea {
   //   const waveFrequency = 0.2; // Adjust based on your wave frequency in the shader
   //   return Math.sin((x + time) * waveFrequency) * waveAmplitude;
   // }
-  getWaterLevel(x, z, time) {
-    // Smoother wave function
+  getWaterLevel(x, z,) {
+
+    const time = clock.getElapsedTime();
+
     return (
       Math.sin(x * this.waveFrequency + time) * this.waveAmplitude * 0.5 +
       Math.cos(z * this.waveFrequency + time) * this.waveAmplitude * 0.5 

@@ -108,7 +108,7 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 let time = Date.now();
-const clock = new THREE.Clock();
+export const clock = new THREE.Clock();
 const loop = () => {
   let lastTime = Date.now();
   let deltaTime = (lastTime - time) / 1000; // Time elapsed in seconds

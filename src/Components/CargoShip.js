@@ -37,6 +37,7 @@ class CargoShip {
     this.a = new THREE.Vector3(0, 0, 0);
     this.T = new THREE.Vector3(0, 0, 0);
     this.B = new THREE.Vector3(0, 0, 0);
+    this.W = new THREE.Vector3(0, 0, 0);
     this.WD = new THREE.Vector3(0, 0, 0);
     this.AD = new THREE.Vector3(0, 0, 0);
     this.angularVelocity = 0;
@@ -65,25 +66,7 @@ class CargoShip {
 
   updatePosition(time, deltaTime) {
     if (this.ship) {
-      this.B.copy(
-        this.buoyancy.calculateForce(this.position, time, this.shipYlevel)
-      );
-      let sinkingDrag = this.Drag.BoyuancyWaterDrag(this.v.y);
-      this.T.copy(this.engine.getThrustForce());
-      // turn) off the engine when sinking
-      this.AD.copy(this.Drag.movingAirDrag(this.v.x));
-      this.WD.copy(this.Drag.movingWaterDrag(this.v.x));
-      // if (!this.B.equals(new THREE.Vector3(0, 0, 0))) {
-      //   T = new THREE.Vector3(0, 0, 0);
-      // }
-      let theta = this.rudder.updateYaw(deltaTime, this.v, this.mass);
-      this.ship.rotation.y += theta;
-
-      var s = this.B.add(
-        sinkingDrag
-          .clone()
-          .add(this.T.clone().add(this.WD.clone().add(this.AD)))
-      );
+      var s = this.calculateSigma(time);
       this.a.copy(s.clone().divideScalar(this.mass));
       this.v.add(this.a.clone().multiplyScalar(deltaTime));
       this.pos.set(
@@ -91,11 +74,40 @@ class CargoShip {
         this.v.y,
         this.v.z * Math.sin(-this.ship.rotation.y)
       );
+      let theta = this.rudder.updateYaw(deltaTime, this.v, this.mass);
+      this.ship.rotation.y += theta;
 
       this.pos.multiplyScalar(deltaTime);
       this.position.add(this.pos);
       this.ship.position.set(this.position.x, this.position.y, this.position.z);
     }
+  }
+
+  calculateSigma() {
+    this.B.copy(this.buoyancy.calculateForce(this.position, this.shipYlevel));
+    let sinkingDrag = this.Drag.BoyuancyWaterDrag(this.v.y);
+    this.T.copy(this.engine.getThrustForce());
+    // turn) off the engine when sinking
+    this.AD.copy(this.Drag.movingAirDrag(this.v.x));
+    this.WD.copy(this.Drag.movingWaterDrag(this.v.x));
+    this.W.copy(this.calculateWeight());
+    // if (!this.B.equals(new THREE.Vector3(0, 0, 0))) {
+    //   T = new THREE.Vector3(0, 0, 0);
+    // }
+
+    var s = this.B.clone().add(
+      this.W.clone().add(
+        sinkingDrag
+          .clone()
+          .add(this.T.clone().add(this.WD.clone().add(this.AD)))
+      )
+    );
+    return s;
+  }
+
+  calculateWeight() {
+    let force = -this.mass * 9.8;
+    return new THREE.Vector3(0, force, 0);
   }
 
   gui() {
