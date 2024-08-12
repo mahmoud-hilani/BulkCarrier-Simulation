@@ -26,7 +26,6 @@ waterDrag(v){
     let C = 1.3
 
  let A = this.shipBeam*this.shipLength
- console.log(v)
   var DF = 0.5 * C * this.waterDensity * A * v * v;
   return new THREE.Vector3(0,DF,0)
 

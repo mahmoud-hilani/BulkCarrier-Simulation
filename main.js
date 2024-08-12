@@ -9,19 +9,9 @@ import { Control } from "./src/Components/control.js";
 import { Sea } from "./src/Components/Sea.js";
 import GUI from "lil-gui";
 
-// ======================================
-// Your Three.js setup and initialization code here
-
 export let camera, renderer;
 export let controls, water, sun;
-// ======================
-// my cmp
-
 export const scene = new THREE.Scene();
-// export const world = new CANNON.World(); // Create a physics world
-// world.broadphase = new CANNON.SAPBroadphase(world);
-// world.allowSleep = true;
-// world.gravity.set(0, -9.82, 0); // Set gravity (adjust as needed)
 export let gui = new GUI();
 gui.title('ships');
 
@@ -30,7 +20,6 @@ const intensity = 2; // full intensity
 export const light = new THREE.AmbientLight(color, intensity);
 light.position.set(10, 10, 10); // position the light
 scene.add(light);
-//30
 // Scene
 var enginePower = 60_000_000;
   let engine = new Engine(enginePower, 73, 0.8);
