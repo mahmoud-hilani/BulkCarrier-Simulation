@@ -26,7 +26,10 @@ class Rudder {
       this.rudderArea *
       velocity.lengthSq() *
       Math.sin(degreesToRadians(this.rudderAngle));
-    const moment = rudderForce * this.rudderDistance;
+      let D =
+      this.drag.rotatingAirDrag(this.angularVelocity) +
+      this.drag.rotatingWaterDrag(this.angularVelocity);
+    const moment = (rudderForce) * this.rudderDistance;
     return moment;
   }
 
@@ -35,15 +38,14 @@ class Rudder {
     const moment = this.calculateTurningMoment(velocity, this.shipMass);
     //    console.log(this.shipMass)
     //    console.log(moment)
-    let D =
-      this.drag.rotatingAirDrag(this.angularVelocity) +
-      this.drag.rotatingWaterDrag(this.angularVelocity);
-    this.angularAcceleration = moment / this.shipInertia - D;
+    
+   
+    this.angularAcceleration = moment / this.shipInertia;
     this.angularVelocity += this.angularAcceleration * deltaTime;
 
-    // Apply damping to angular velocity
-    // const damping = 0.99; // Damping factor
-    // this.angularVelocity *= damping;
+    //Apply damping to angular velocity
+    const damping = 0.99; // Damping factor
+    this.angularVelocity *= damping;
 
     return this.angularVelocity * deltaTime;
   }

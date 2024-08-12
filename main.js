@@ -13,7 +13,7 @@ export let camera, renderer;
 export let controls, water, sun;
 export const scene = new THREE.Scene();
 export let gui = new GUI();
-gui.title('ships');
+gui.title("ships");
 
 const color = 0xffffff; // white light
 const intensity = 2; // full intensity
@@ -22,29 +22,33 @@ light.position.set(10, 10, 10); // position the light
 scene.add(light);
 // Scene
 var enginePower = 60_000_000;
-  let engine = new Engine(enginePower, 73, 0.8);
-  let engine2 = new Engine(enginePower, 73, 0.8);
-    export var cargoShip = new CargoShip(
-  'Aframax',
+let engine = new Engine(enginePower, 73, 0.8);
+let engine2 = new Engine(enginePower, 73, 0.8);
+export var cargoShip = new CargoShip(
+  "Aframax",
   scene,
   "./src/Models/cargoship/scene.gltf",
   engine,
   {
-  x: -0,
-  y: 0,
-  z: 0,
-}
+    x: -0,
+    y: 0,
+    z: 0,
+  }
 );
 
- var cargoShip2 = new CargoShip(
-  'EverGreen',
+var cargoShip2 = new CargoShip(
+  "EverGreen",
   scene,
   "./src/Models/cargoship/scene.gltf",
-  engine2,{
-  x: 0,
-  y: 0,
-  z: -200,
-},100,6,15
+  engine2,
+  {
+    x: 0,
+    y: 0,
+    z: -200,
+  },
+  100,
+  6,
+  15
 );
 const island = new Island(scene, "./src/Models/island/scene.gltf", {
   x: 2400,
@@ -119,4 +123,3 @@ const loop = () => {
   window.requestAnimationFrame(loop);
 };
 loop();
-

@@ -7,8 +7,8 @@ class Drag {
     shipLength,
     shipDraft,
     shipBeam,
-    airDragCoefficient = 0.0025,
-    waterDragCoefficient = 0.005
+    dragCoefficient = 0.5,//0.8580
+    sideDragCoefficient = 0.8
   ) {
     this.airDensity = 1.225; // kg/m^3
     this.waterDensity = 1025;
@@ -17,27 +17,27 @@ class Drag {
     this.shipDraft = shipDraft;
     this.shipBeam = shipBeam;
     this.gravity = 9.8;
-    this.airDragCoefficient = airDragCoefficient;
-    this.waterDragCoefficient = waterDragCoefficient;
+    this.dragCoefficient = dragCoefficient;
+    this.sideDragCoefficient = sideDragCoefficient;
   }
 
   AirDrag() {
     let C = 0.04; //0.005
   }
 
-  waterDrag(v) {
-    let C = 0.003;
-    //    let C = 1.3
+  // waterDrag(v) {
+  //   let C = 0.003;
+  //   //    let C = 1.3
 
-    let A = this.shipBeam * this.shipDraft;
-    var DF = 0.5 * C * this.waterDensity * A * v * v;
-    return new THREE.Vector3(0, DF, 0);
-  }
+  //   let A = this.shipBeam * this.shipDraft;
+  //   var DF = 0.5 * C * this.waterDensity * A * v * v;
+  //   return new THREE.Vector3(0, DF, 0);
+  // }
 
   setwaterlevel(waterLevel) {
     this.waterLevel = waterLevel;
   }
-
+   
   movingAirDrag(shipVelocity) {
     const frontalArea = this.shipDraft * 4 * this.shipBeam; // Approximate frontal area
     let force =
@@ -45,7 +45,7 @@ class Drag {
       this.airDensity *
       shipVelocity *
       shipVelocity *
-      this.airDragCoefficient *
+      this.dragCoefficient *
       frontalArea;
     return new THREE.Vector3(force, 0, force);
   }
@@ -57,7 +57,7 @@ class Drag {
       this.waterDensity *
       shipVelocity *
       shipVelocity *
-      this.waterDragCoefficient *
+      this.dragCoefficient *
       wettedSurfaceArea;
     return new THREE.Vector3(force, 0, force);
   }
@@ -69,7 +69,7 @@ class Drag {
       this.airDensity *
       shipVelocity *
       shipVelocity *
-      this.airDragCoefficient *
+      this.sideDragCoefficient *
       sideArea;
     return force;
   }
@@ -81,14 +81,14 @@ class Drag {
       this.waterDensity *
       shipVelocity *
       shipVelocity *
-      this.waterDragCoefficient *
+      this.sideDragCoefficient *
       wettedSurfaceArea;
     return force;
   }
 
   BoyuancyWaterDrag(v) {
     // let C = 0.003
-    let C = 1.3;
+    let C = 0.5;
 
     let A = this.shipBeam * this.shipLength;
     var DF = 0.5 * C * this.waterDensity * A * v * v;

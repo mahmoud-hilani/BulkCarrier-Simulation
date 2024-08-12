@@ -1,10 +1,10 @@
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import * as THREE from "three";
-import Buoyancy from "../physics/Buoyancy";
-import Engine from "../physics/Engine"; // I
-import Rudder from "../physics/Rudder"; // I
+import Buoyancy from "../physics/Buoyancy.js";
+import Engine from "../physics/Engine.js"; // I
+import Rudder from "../physics/Rudder.js"; // I
 import Drag from "../physics/Drag.js";
-import { degreesToRadians } from "../Components/MathCalc"; // Import thethCalc";
+import { degreesToRadians } from "./MathCalc.js"; // Import thethCalc";
 import { gui } from "../../main.js"; //
 
 class CargoShip {
@@ -52,7 +52,13 @@ class CargoShip {
       shipBeam,
       this.Drag
     );
-    this.rudder = new Rudder(shipLength, shipBeam, this.mass, this.guifolder,this.Drag);
+    this.rudder = new Rudder(
+      shipLength,
+      shipBeam,
+      this.mass,
+      this.guifolder,
+      this.Drag
+    );
     this.position = new THREE.Vector3(start.x, start.y, start.z);
     this.gui();
   }
@@ -60,7 +66,7 @@ class CargoShip {
   updatePosition(time, deltaTime) {
     if (this.ship) {
       this.B.copy(
-        this.buoyancy.BuoyancyForce(this.position, time, this.shipYlevel)
+        this.buoyancy.calculateForce(this.position, time, this.shipYlevel)
       );
       let sinkingDrag = this.Drag.BoyuancyWaterDrag(this.v.y);
       this.T.copy(this.engine.getThrustForce());
