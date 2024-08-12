@@ -67,7 +67,13 @@ class CargoShip {
   updatePosition(time, deltaTime) {
     if (this.ship) {
       var s = this.calculateSigma(time);
+      try{
       this.a.copy(s.clone().divideScalar(this.mass));
+      if (!isFinite(this.a.x)) {
+        throw new Error('Arithmetic error: mass cannot be zero');
+      }}catch(e){
+        console.error('An error occurred:', e.message);
+      }
       this.v.add(this.a.clone().multiplyScalar(deltaTime));
       this.pos.set(
         this.v.x * Math.cos(-this.ship.rotation.y),
@@ -84,8 +90,9 @@ class CargoShip {
   }
 
   calculateSigma() {
+    
+     
     this.B.copy(this.buoyancy.calculateForce(this.position, this.shipYlevel));
-    let sinkingDrag = this.Drag.BoyuancyWaterDrag(this.v.y);
     this.T.copy(this.engine.getThrustForce());
     // turn) off the engine when sinking
     this.AD.copy(this.Drag.movingAirDrag(this.v.x));
@@ -94,6 +101,8 @@ class CargoShip {
     // if (!this.B.equals(new THREE.Vector3(0, 0, 0))) {
     //   T = new THREE.Vector3(0, 0, 0);
     // }
+ 
+  let sinkingDrag = this.Drag.BoyuancyWaterDrag(this.v.y);
 
     var s = this.B.clone().add(
       this.W.clone().add(
@@ -115,9 +124,10 @@ class CargoShip {
       .add(this.engine, "currentRPM", 0, this.engine.maxRPM, 10)
       .onChange((value) => {});
 
-    this.guifolder.add(this.a, "x").listen().name("acceleration");
-    this.guifolder.add(this.v, "x").listen().name("velocity");
-    this.guifolder.add(this.v, "y").listen().name("velocity Y");
+    this.guifolder.add(this.a, "x").listen().name("accX");
+    this.guifolder.add(this.a, "y").listen().name("accY");
+    this.guifolder.add(this.v, "x").listen().name("vX");
+    this.guifolder.add(this.v, "y").listen().name("vY");
 
     let position = this.guifolder.addFolder("position");
     position.add(this.position, "x").listen();
@@ -146,7 +156,7 @@ class CargoShip {
 
   updateMass() {
     this.guifolder
-      .add(this, "mass", 1, 80_000_000, 1_000_000)
+      .add(this, "mass", 0, 80_000_000, 1_000_000)
       .onChange((newMass) => {
         this.mass = newMass;
         this.buoyancy.updateMass(newMass);

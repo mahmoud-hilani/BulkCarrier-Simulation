@@ -35,7 +35,7 @@ class Rudder {
 
   // Update ship's yaw based on the turning moment
   updateYaw(deltaTime, velocity) {
-    const moment = this.calculateTurningMoment(velocity, this.shipMass);
+    const moment = this.calculateTurningMoment(velocity);
     //    console.log(this.shipMass)
     //    console.log(moment)
     
