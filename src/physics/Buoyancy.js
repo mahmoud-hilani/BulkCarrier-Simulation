@@ -17,19 +17,6 @@ class Buoyancy {
     this.shipMass = newMass;
   }
 
-  // AirDrag(){
-  //  let C = 0.04
-  // }
-
-  // waterDrag(v){
-  //   // let C = 0.003
-  //     let C = 1.3
-
-  //  let A = this.shipBeam*this.shipLength
-  //   var DF = 0.5 * C * this.waterDensity * A * v * v;
-  //   return new THREE.Vector3(0,DF,0)
-
-  // }
 
   calculateForce(position, shipYlevel) {
     const wave = sea.getWaterLevel(position.x, position.z);
@@ -40,7 +27,6 @@ class Buoyancy {
     if (waterLevel > this.shipDraft) {
       const maxSubmergedVolume =
         this.shipLength * this.shipDraft * this.shipBeam;
-      // console.log(24600000  + " maxBuoyantForce")
       const B =
         maxSubmergedVolume * this.waterDensity * this.gravity -
         this.shipMass * this.gravity;

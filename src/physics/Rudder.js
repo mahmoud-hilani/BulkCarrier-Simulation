@@ -2,8 +2,7 @@ import { degreesToRadians } from "../Components/MathCalc";
 class Rudder {
   constructor(shipLength, shipBeam, shipMass, guifolder, drag) {
     this.drag = drag;
-    this.shipLength = shipLength;
-    this.shipMass = shipMass;
+    this.shipBeam = shipBeam;
     this.rudderAngle = 0; // Rudder angle in radians
     this.rudderForceCoefficient = 1.0; // Realistic rudder force coefficient
     this.rudderArea = 0.015 * shipBeam * shipLength; // 1.5% of the submerged lateral area
@@ -21,23 +20,29 @@ class Rudder {
     this.shipMass = newMass;
   }
   calculateTurningMoment(velocity) {
-    const rudderForce =
+    let rudderForce =
       this.rudderForceCoefficient *
       this.rudderArea *
       velocity.lengthSq() *
       Math.sin(degreesToRadians(this.rudderAngle));
-      let D =
+      
+    let moment = (rudderForce) * this.rudderDistance;
+    return moment;
+  }
+
+  calculateDragMoment(){
+    let D =
       this.drag.rotatingAirDrag(this.angularVelocity) +
       this.drag.rotatingWaterDrag(this.angularVelocity);
-    const moment = (rudderForce) * this.rudderDistance;
-    return moment;
+      D*=Math.cos(degreesToRadians(this.rudderAngle))
+     return (D) * this.shipBeam;
   }
 
   // Update ship's yaw based on the turning moment
   updateYaw(deltaTime, velocity) {
-    const moment = this.calculateTurningMoment(velocity);
-    //    console.log(this.shipMass)
-    //    console.log(moment)
+    let rudderMoment = this.calculateTurningMoment(velocity);
+    let dragMoment  = this.calculateDragMoment()
+  let moment = rudderMoment+ dragMoment   //    console.log(moment)
     
    
     this.angularAcceleration = moment / this.shipInertia;
