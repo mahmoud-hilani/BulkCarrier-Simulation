@@ -37,7 +37,7 @@ export var cargoShip = new CargoShip(
 );
 
 var cargoShip2 = new CargoShip(
-  "EverGreen",
+  "Aframax",
   scene,
   "./src/Models/cargoship/scene.gltf",
   engine2,
