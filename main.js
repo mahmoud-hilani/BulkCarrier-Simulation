@@ -25,7 +25,7 @@ var enginePower = 60_000_000;
 let engine = new Engine(enginePower, 73, 0.8);
 let engine2 = new Engine(enginePower, 73, 0.8);
 export var cargoShip = new CargoShip(
-  "Aframax",
+  "MV Delight",
   scene,
   "./src/Models/cargoship/scene.gltf",
   engine,
