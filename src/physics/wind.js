@@ -13,7 +13,6 @@
       0,
       0
     );
-    console.log(moving);
     let side = this.drag.rotatingAirDrag(airv) + this.drag.rotatingWaterDrag(airv);
     let sideForce = new THREE.Vector3(
       0,

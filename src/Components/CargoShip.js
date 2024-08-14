@@ -168,7 +168,7 @@ class CargoShip {
 
   updateMass() {
     this.guifolder
-      .add(this, "mass", 0, 80_000_000, 1_000_000)
+      .add(this, "mass", 1, 80_000_000, 1_000_000)
       .onChange((newMass) => {
         this.mass = newMass;
         this.buoyancy.updateMass(newMass);

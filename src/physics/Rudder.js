@@ -8,8 +8,7 @@ class Rudder {
     this.rudderArea = 0.015 * shipBeam * shipLength; // 1.5% of the submerged lateral area
     this.rudderDistance = shipLength * 0.5; // Assume rudder is at 90% of the ship length
     this.shipInertia =
-      (1 / 1200) * shipMass * (shipLength ** 2 + shipBeam ** 2); // Moment of inertia for yaw
-    // this.shipInertia = (1 / 12) * shipMass * (shipBeam/2) ** 2; // Moment of inertia for yaw
+      (1 / 12) * shipMass * (shipLength ** 2 + shipBeam ** 2); // Moment of inertia for yaw
     this.angularAcceleration = 0; // Initial angular velocity
     this.angularVelocity = 0; // Initial angular velocity
     guifolder.add(this, "rudderAngle", -35, 35, 10);
@@ -20,28 +19,29 @@ class Rudder {
     this.shipMass = newMass;
   }
   calculateTurningMoment(velocity) {
-    let rudderForce =
+    let rudderForce =0.5*1025*
       this.rudderForceCoefficient *
       this.rudderArea *
       velocity.lengthSq() *
       Math.sin(degreesToRadians(this.rudderAngle));
-      
+      console.log(rudderForce)
     let moment = (rudderForce) * this.rudderDistance;
     return moment;
   }
 
-  calculateDragMoment(){
+  calculateDragMoment(velocity){
     let D =
-      this.drag.rotatingAirDrag(this.angularVelocity) +
-      this.drag.rotatingWaterDrag(this.angularVelocity);
-      D*=Math.cos(degreesToRadians(this.rudderAngle))
+      this.drag.rotatingAirDrag(velocity) +
+      this.drag.rotatingWaterDrag(velocity);
+      D*=-Math.sin(degreesToRadians(this.rudderAngle))
+      console.log(D);
      return (D) * this.shipBeam;
   }
 
   // Update ship's yaw based on the turning moment
   updateYaw(deltaTime, velocity) {
     let rudderMoment = this.calculateTurningMoment(velocity);
-    let dragMoment  = this.calculateDragMoment()
+    let dragMoment  = this.calculateDragMoment(this.angularVelocity)
   let moment = rudderMoment+ dragMoment   //    console.log(moment)
     
    
