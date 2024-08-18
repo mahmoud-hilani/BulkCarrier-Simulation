@@ -4,7 +4,7 @@ import { scene ,clock} from "../../main.js";
 
 class Sea {
   constructor() {
-    this.waveFrequency = 6;
+    this.waveFrequency = 1;
     this.waveAmplitude = 1;
 
     this.water = new Water(

@@ -17,7 +17,6 @@ class Buoyancy {
     this.shipMass = newMass;
   }
 
-
   calculateForce(position, shipYlevel) {
     const wave = sea.getWaterLevel(position.x, position.z);
     var requiredSubmergedVolume = this.shipMass / this.waterDensity;
@@ -33,10 +32,10 @@ class Buoyancy {
       return new THREE.Vector3(0, B, 0);
     }
     // Adjust the ship's y position based on submerged depth
-    const newYPosition = -waterLevel + shipYlevel + wave / this.shipMass;
+    const newYPosition = -waterLevel + shipYlevel + wave / Math.sqrt(this.shipMass*1000);
     position.y = newYPosition;
     const submergedVolume = this.shipLength * waterLevel * this.shipBeam;
-    const B =submergedVolume* this.waterDensity * this.gravity
+    const B = submergedVolume * this.waterDensity * this.gravity;
     return new THREE.Vector3(0, B, 0);
   }
 }
