@@ -1,5 +1,5 @@
 
-# Bulk Carriers Violation Simulation
+# Bulk Carriers Simulation
 
 A 3D simulation project that models and visualizes the physical forces acting on bulk carriers. This project leverages **Three.js** to create an interactive environment, incorporating buoyancy, drag, engine thrust, rudder dynamics, and wind effects.
 
